@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="inh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#faf9f5" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%2333493e'/%3E%3Cpath d='M16 26V6m0 13-7-5V8m7 8 7-5V7' stroke='%23f9f7ed' stroke-width='2' fill='none'/%3E%3C/svg%3E"
+    />
+    <title>Хутиевы</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script defer src="/i18n-inh.js"></script>
+    <script defer src="/vendor/d3.v7.min.js"></script>
+    <script defer src="/tree-map.js"></script>
+    <script defer src="/tree-export.js"></script>
+    <script defer src="/app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#tree"
+        ><span data-icon="tree"></span
+        ><span data-t="Родословная Хутиевых"></span
+      ></a>
+      <nav class="tabs" data-label="Основная навигация">
+        <a id="nav-tree" href="#tree" data-t="Древо"></a>
+        <a id="nav-history" href="#history" data-t="История"></a>
+        <a id="nav-stats" href="#stats" data-t="Статистика"></a>
+        <a id="nav-review" href="#review" data-t="Заявки" hidden></a>
+      </nav>
+      <div class="preferences">
+        <div class="language" id="language-picker">
+          <button id="language" class="language-trigger" type="button"
+            aria-expanded="false" aria-haspopup="menu" aria-controls="language-menu"
+            aria-labelledby="language-caption language-value">
+            <span data-icon="globe"></span>
+            <span id="language-caption" class="sr" data-t="Язык"></span>
+            <span id="language-value">ГӀалгӀай</span>
+            <span data-icon="chevron"></span>
+          </button>
+          <div id="language-menu" class="language-menu" role="menu" aria-labelledby="language-caption" hidden>
+            <button type="button" role="menuitemradio" tabindex="-1" aria-checked="true" lang="inh">
+              ГӀалгӀай<span data-icon="check"></span>
+            </button>
+            <button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" lang="ru">
+              Русский<span data-icon="check"></span>
+            </button>
+          </div>
+        </div>
+        <button
+          id="account"
+          type="button"
+          class="quiet"
+          data-title="Вход редактора"
+        >
+          <span data-icon="key"></span
+          ><span class="account-word" data-t="Редактор"></span>
+        </button>
+      </div>
+    </header>
+    <main id="workspace">
+      <div id="loading" class="message" role="status" data-t="Загрузка…"></div>
+      <section class="message" id="load-error" role="alert" hidden>
+        <p id="load-message"></p>
+        <button id="retry" class="button" data-t="Повторить"></button>
+      </section>
+      <section id="tree-pane" class="tree-page" hidden>
+        <div class="map-top">
+          <div class="search-wrap" id="search-wrap">
+            <div class="search">
+              <span data-icon="search"></span
+              ><input
+                type="search"
+                id="search-input"
+                data-placeholder="Найти человека"
+                data-label="Найти человека"
+                aria-controls="search-pane"
+                autocomplete="off"
+                enterkeyhint="search"
+              /><button
+                type="button"
+                id="clear-query"
+                class="icon-btn"
+                data-title="Сбросить поиск"
+                hidden
+              >
+                <span data-icon="x"></span></button
+              ><kbd id="search-hint">/</kbd>
+            </div>
+            <section id="search-pane" class="search-panel" hidden>
+              <p id="search-count" class="meta" role="status"></p>
+              <div id="results"></div>
+              <button
+                type="button"
+                class="more"
+                id="more"
+                data-t="Показать ещё"
+                hidden
+              ></button>
+            </section>
+          </div>
+          <nav class="branches" data-label="Ветви">
+            <span class="branch-caption" data-t="Ветви"></span>
+            <div id="branch-links"></div>
+          </nav>
+          <button id="large-text" type="button" aria-pressed="false">
+            <span aria-hidden="true">Аа</span><span data-t="Крупный шрифт"></span>
+          </button>
+        </div>
+        <div class="map-area" id="map-area">
+          <canvas
+            id="diagram"
+            tabindex="0"
+            data-label="Переместить или приблизить древо"
+            aria-describedby="map-description"
+          ></canvas>
+          <p
+            class="sr"
+            id="map-description"
+            data-t="Перемещайте полотно стрелками. Для поиска нажмите / ."
+          ></p>
+          <aside
+            id="person-panel"
+            class="person-sheet"
+            hidden
+            aria-labelledby="person-name"
+          >
+            <div class="sheet-head">
+              <h1 id="person-name"></h1>
+              <button
+                class="icon-btn"
+                id="close-person"
+                data-title="Закрыть карточку"
+              >
+                <span data-icon="x"></span>
+              </button>
+            </div>
+            <div id="person-facts" class="facts"></div>
+            <div id="parent-block"></div>
+            <div id="child-block"></div>
+            <details id="ancestry">
+              <summary data-t="Путь от Хути"></summary>
+              <div id="lineage" class="lineage"></div>
+            </details>
+            <div class="person-actions">
+              <button type="button" class="button primary" id="add">
+                <span data-icon="plus"></span><span data-t="Добавить сына"></span>
+              </button>
+              <button type="button" class="button" id="edit-name">
+                <span data-icon="pencil"></span><span data-t="Исправить имя"></span>
+              </button>
+            </div>
+          </aside>
+          <div class="map-controls">
+            <div class="zoom-group">
+              <button
+                type="button"
+                id="zoom-out"
+                class="icon-btn"
+                data-title="Уменьшить"
+              >
+                <span data-icon="minus"></span></button
+              ><output id="zoom-value" data-label="Масштаб">100%</output
+              ><button
+                type="button"
+                id="zoom-in"
+                class="icon-btn"
+                data-title="Увеличить"
+              >
+                <span data-icon="plus"></span>
+              </button>
+            </div>
+            <button
+              type="button"
+              class="fit"
+              id="fit"
+              data-title="Показать родословную целиком"
+            >
+              <span data-icon="fit"></span><span data-t="Всё древо"></span>
+            </button>
+          </div>
+        </div>
+        <footer class="map-footer">
+          <a id="map-count" href="#stats" data-title="Статистика"></a>
+          <button id="generation-toggle" type="button" popovertarget="generation-key">
+            <span id="generation-count"></span><span data-icon="chevron"></span>
+          </button>
+          <section id="generation-key" popover="auto" aria-labelledby="generation-key-title">
+            <h2 id="generation-key-title" data-t="Поколения"></h2>
+            <ol id="generation-swatches"></ol>
+          </section>
+          <button type="button" id="export-tree" data-title="Сохранить древо">
+            <span data-icon="download"></span><span data-t="Сохранить"></span>
+          </button>
+        </footer>
+      </section>
+      <section id="stats-pane" class="reading" hidden>
+        <div class="page-container stats-page">
+          <h1 data-t="Статистика"></h1>
+          <div class="totals" id="totals"></div>
+          <div class="stat-columns">
+            <section>
+              <h2 data-t="По поколениям"></h2>
+              <div id="generations" class="rows"></div>
+            </section>
+            <section>
+              <h2 data-t="По ветвям"></h2>
+              <p class="muted" data-t="С учётом родоначальника ветви."></p>
+              <div id="branch-stats"></div>
+            </section>
+          </div>
+        </div>
+      </section>
+      <article id="history-pane" class="reading" hidden>
+        <div class="page-container">
+          <h1 data-t="История тейпа"></h1>
+          <div class="article-layout">
+            <nav id="contents" data-label="Оглавление"></nav>
+            <div class="prose" id="article"></div>
+          </div>
+        </div>
+      </article>
+      <section id="review-pane" class="reading" hidden>
+        <div class="page-container narrow">
+          <div class="heading-row">
+            <h1 data-t="Заявки"></h1>
+            <button
+              type="button"
+              id="refresh"
+              class="button"
+              data-t="Обновить"
+            ></button>
+          </div>
+          <p id="review-status" role="status" class="muted"></p>
+          <div id="requests"></div>
+        </div>
+      </section>
+    </main>
+    <div id="print-tree"></div>
+    <dialog id="form-dialog" aria-labelledby="dialog-title">
+      <div class="sheet-head">
+        <h2 id="dialog-title"></h2>
+        <button id="close" type="button" class="icon-btn" data-title="Закрыть">
+          <span data-icon="x"></span>
+        </button>
+      </div>
+      <div id="dialog-body"></div>
+    </dialog>
+    <p id="announcement" class="sr" role="status"></p>
+  </body>
+</html>

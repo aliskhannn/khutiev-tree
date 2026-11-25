@@ -1,0 +1,13 @@
+.family/
+dist/
+node_modules/
+*.tar.gz
+.sites-checkout*/
+.openai/
+.onreza/
+build-onreza/
+.env
+.env.*
+*.sqlite*
+*.db
+*.dump

@@ -1,0 +1,16 @@
+{
+  "name": "khutiev-tree",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "dev": "node server/local.mjs",
+    "start": "node server/local.mjs",
+    "build": "node scripts/build.mjs",
+    "build:onreza": "node scripts/build-onreza.mjs",
+    "test": "node --test server/*.test.mjs"
+  },
+  "dependencies": {
+    "postgres": "3.4.9"
+  }
+}

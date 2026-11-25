@@ -1,0 +1,12 @@
+[project]
+framework = "other"
+
+[build]
+install_command = "pnpm install --frozen-lockfile"
+command = "node scripts/build-onreza.mjs"
+output_directory = "build-onreza"
+
+[deploy]
+compute = "process"
+runtime = "node"
+entry = "server/onreza.mjs"
