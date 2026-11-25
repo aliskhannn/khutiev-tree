@@ -627,8 +627,17 @@
       this.points = [];
       if (!this.root) return;
       const zoom = Math.round((k / this.fitScale) * 100);
-      const baseSize = parseFloat(getComputedStyle(this.canvas).fontSize);
-      this.labelSize = baseSize * (1 + 0.3 * Math.max(0, Math.log2(k / this.fitScale)));
+      const fontScale = parseFloat(getComputedStyle(this.canvas).fontSize) / 16;
+      if (this.canvas.closest(".large-text")) {
+        const size = 22 * (1 + 0.3 * Math.max(0, Math.log2(k / this.fitScale)));
+        this.labelSizes = [size + 6, size + 2, size].map(value => Math.round(value) * fontScale);
+      } else {
+        this.labelSizes = [
+          clamp(17 + k, 18, 23),
+          clamp(13.5 + k * 0.8, 14, 18),
+          clamp(11.5 + k * 0.95, 12, 17),
+        ].map(value => value * fontScale);
+      }
       const byGeneration = k / this.fitScale >= 1.55;
       if (zoom !== this.zoomPercent) {
         this.zoomPercent = zoom;
@@ -717,7 +726,7 @@
         top = n.depth === 1,
         selected = n.id === this.selectedId,
         hover = n.id === this.hoveredId;
-      const size = Math.round(this.labelSize + (root ? 6 : top ? 2 : 0));
+      const size = this.labelSizes[Math.min(n.depth, 2)];
       const font = root
         ? "600 " + size + "px " + serifFont
         : top
@@ -729,7 +738,7 @@
       const lines = wrapName(this.ctx, n.name, maxWidth);
       const width = padding + Math.ceil(Math.max(...lines.map(line => this.ctx.measureText(line).width)));
       const lineHeight = Math.ceil(size * 1.18);
-      const height = lines.length * lineHeight + (root ? 12 : 8);
+      const height = Math.ceil(size) + (root ? 14 : top ? 11 : 9) + (lines.length - 1) * lineHeight;
       return { root, top, selected, hover, font, lines, lineHeight, width, height };
     }
 
